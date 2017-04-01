@@ -12,7 +12,7 @@ tmp
 .start_bot.rb.swp
 
 # Ignore secret data
-#token.rb
+token.rb
 
 #IDE
 .idea
