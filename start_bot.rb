@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# encoding: utf-8
 
 require 'telegram/bot'
 require 'net/http'
@@ -38,8 +39,9 @@ Telegram::Bot::Client.run(@token) do |bot|
   bot.listen do |message|
     case # message.text
       when '/help' == (t = message.text)
-        bot.api.sendMessage(chat_id: message.chat.id, text: "My commands:\r\n/help - list of commands\r\n/start - hello\r\n/anekdot - anekdot\r\n/aforizm - aforizm\r\n/tost - tost")
-      when '/start' == t
+        msg = "My commands:\r\n/help - list of commands\r\n/start - hello\r\n/anekdot - anekdot\r\n/aforizm - aforizm\r\n/tost - tost\r\n/goroscop - today"
+        bot.api.sendMessage(chat_id: message.chat.id, text: msg)
+      when t == '/start'
         bot.api.sendMessage(chat_id: message.chat.id, text: "Hello, #{message.from.first_name}")
       when rzhu.keys.include?(t)
         url = "http://rzhunemogu.ru/Rand.aspx?CType=#{rzhu[t]}"
@@ -47,11 +49,14 @@ Telegram::Bot::Client.run(@token) do |bot|
         if ans = (get_xml(url).content.force_encoding('cp1251').encode('utf-8') rescue nil)
           bot.api.sendMessage(chat_id: message.chat.id, text: ans)
         end
+      when t == '/goroscop'
+        ans = Telegram::Bot::Types::ReplyKeyboardMarkup.new(keyboard: goroscop.keys.each_slice(3), one_time_keyboard: true)
+        bot.api.sendMessage(chat_id: message.chat.id, text: 'Выберите знак зодиака', reply_markup: ans)
       when goroscop.keys.include?(t)
         url = 'http://img.ignio.com/r/export/utf/xml/daily/com.xml'
 
-        if ans = get_xml(url)
-          bot.api.sendMessage(chat_id: message.chat.id, text: 'test') #ans)
+        if ans = get_xml(url) and not (msg = ans.xpath("//#{goroscop[t]}//today").text.strip).empty?
+          bot.api.sendMessage(chat_id: message.chat.id, text: msg)
         end
     end
   end
