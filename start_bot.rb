@@ -13,9 +13,24 @@ rzhu = {
     '/tost'    => 6,
 }
 
+goroscop = {
+    '/овен'     => 'aries',
+    '/телец'    => 'taurus',
+    '/близнецы' => 'gemini',
+    '/рак'      => 'cancer',
+    '/лев'      => 'leo',
+    '/дева'     => 'virgo',
+    '/весы'     => 'libra',
+    '/скорпион' => 'scorpio',
+    '/стрелец'  => 'sagittarius',
+    '/козерог'  => 'capricorn',
+    '/водолей'  => 'aquarius',
+    '/рыбы'     => 'pisces',
+}
+
 def get_xml(url)
   if (response = Net::HTTP.get_response(URI(url)) rescue nil).kind_of? Net::HTTPSuccess
-    Nokogiri::XML(response.body).content.force_encoding('cp1251').encode('utf-8') rescue nil
+    Nokogiri::XML(response.body) rescue nil
   end
 end
 
@@ -27,10 +42,16 @@ Telegram::Bot::Client.run(@token) do |bot|
       when '/start' == t
         bot.api.sendMessage(chat_id: message.chat.id, text: "Hello, #{message.from.first_name}")
       when rzhu.keys.include?(t)
-        url = "http://riizhunemogu.ru/Rand.aspx?CType=#{rzhu[t]}"
+        url = "http://rzhunemogu.ru/Rand.aspx?CType=#{rzhu[t]}"
+
+        if ans = (get_xml(url).content.force_encoding('cp1251').encode('utf-8') rescue nil)
+          bot.api.sendMessage(chat_id: message.chat.id, text: ans)
+        end
+      when goroscop.keys.include?(t)
+        url = 'http://img.ignio.com/r/export/utf/xml/daily/com.xml'
 
         if ans = get_xml(url)
-          bot.api.sendMessage(chat_id: message.chat.id, text: ans)
+          bot.api.sendMessage(chat_id: message.chat.id, text: 'test') #ans)
         end
     end
   end
