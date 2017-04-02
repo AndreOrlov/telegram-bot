@@ -13,6 +13,12 @@ rzhu = {
     '/tost'    => 6,
 }
 
+def get_xml(url)
+  if (response = Net::HTTP.get_response(URI(url)) rescue nil).kind_of? Net::HTTPSuccess
+    Nokogiri::XML(response.body).content.force_encoding('cp1251').encode('utf-8') rescue nil
+  end
+end
+
 Telegram::Bot::Client.run(@token) do |bot|
   bot.listen do |message|
     case # message.text
@@ -21,13 +27,12 @@ Telegram::Bot::Client.run(@token) do |bot|
       when '/start' == t
         bot.api.sendMessage(chat_id: message.chat.id, text: "Hello, #{message.from.first_name}")
       when rzhu.keys.include?(t)
-        url = "http://rzhunemogu.ru/Rand.aspx?CType=#{rzhu[t]}"
+        url = "http://riizhunemogu.ru/Rand.aspx?CType=#{rzhu[t]}"
 
-        if (response = Net::HTTP.get_response(URI(url)) rescue nil).kind_of? Net::HTTPSuccess
-          ans = Nokogiri::XML(response.body).content.force_encoding('cp1251').encode('utf-8') rescue nil
-
-          bot.api.sendMessage(chat_id: message.chat.id, text: ans) if ans
+        if ans = get_xml(url)
+          bot.api.sendMessage(chat_id: message.chat.id, text: ans)
         end
     end
   end
 end
+
