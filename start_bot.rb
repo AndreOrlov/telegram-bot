@@ -58,6 +58,12 @@ Telegram::Bot::Client.run(@token) do |bot|
         if ans = get_xml(url) and not (msg = ans.xpath("//#{goroscop[t]}//today").text.strip).empty?
           bot.api.sendMessage(chat_id: message.chat.id, text: msg)
         end
+      when t =~ /^\/вики(.*)/ #testing
+        url = "http://ru.wikipedia.org/wiki/#{$1.strip.squeeze(' ').downcase.tr(" ", "_")}"
+        uri = URI.parse URI.encode(url)
+        msg = (Net::HTTP.get_response(url) rescue nil).kind_of?(Net::HTTPSuccess) ? url : 'Нет статьи'
+
+        bot.api.sendMessage(chat_id: message.chat.id, text: msg)
     end
   end
 end
