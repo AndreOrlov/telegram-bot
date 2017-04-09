@@ -12,6 +12,7 @@ GEM
     equalizer (0.0.11)
     faraday (0.11.0)
       multipart-post (>= 1.2, < 3)
+    god (0.13.7)
     ice_nine (0.11.2)
     mini_portile2 (2.1.0)
     multipart-post (2.0.0)
@@ -31,11 +32,9 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  god
   nokogiri
   telegram-bot-ruby
-
-RUBY VERSION
-   ruby 2.4.0p0
 
 BUNDLED WITH
    1.14.6
